@@ -74,7 +74,7 @@ export function SignUpForm() {
                             <div className="grid gap-6">
                                 <FormField control={form.control} name="name" render={({field})=>(
                                     <FormItem>
-                                        <FormLabel>Email</FormLabel>
+                                        <FormLabel>Name</FormLabel>
                                         <FormControl>
                                             <Input type='input' placeholder='Ankit Mittal' {...field}/>
                                         </FormControl>
@@ -112,9 +112,11 @@ export function SignUpForm() {
                         </div>
                         <div className='flex flex-col gap-4'>
                                 <Button variant="outline" className='w-full' type='button' disabled={isPending}>
+                                    <Image src="/logos/github.svg" alt='Github' height={20} width={20}/>
                                     Continue with GitHub
                                 </Button>
                                 <Button variant="outline" className='w-full' type='button' disabled={isPending}>
+                                    <Image src="/logos/google.svg" alt='Google' height={20} width={20}/>
                                     Continue with Google
                                 </Button>
                             </div>
