@@ -4,6 +4,7 @@ import { createGoogleGenerativeAI } from '@ai-sdk/google';
 import { generateText } from 'ai';
 import { createAnthropic } from '@ai-sdk/anthropic';
 import { createOpenAI } from '@ai-sdk/openai';
+import * as Sentry from "@sentry/nextjs";
 
 
 const openai = createOpenAI({
@@ -26,11 +27,19 @@ export const executeGeminiAI = inngest.createFunction(
 
   async ({ event, step }) => {
     await step.sleep("wait-a-moment", "5");
+    Sentry.logger.info('User triggered test log', { log_source: 'sentry_test' })
+    console.warn('This is a test warning log for Sentry integration');
+    console.error('This is a test error log for Sentry integration');
     
     const {steps} = await step.ai.wrap("gemini-generate-text",generateText,{
       model: google("gemini-2.5-flash"),
       system: 'You are a helpful assistant that helps users to generate text based on their prompts.',
       prompt: "Write a short poem about the beauty of nature.",
+      experimental_telemetry: {
+        isEnabled: true,
+        recordInputs: true,
+        recordOutputs: true,
+  },
     })
 
     return step
@@ -49,6 +58,11 @@ export const executeAnthropicAI = inngest.createFunction(
       model: anthropic("claude-3-haiku-20240307"),
       system: 'You are a helpful assistant that helps users to generate text based on their prompts.',
       prompt: "Write a short poem about the beauty of nature.",
+      experimental_telemetry: {
+        isEnabled: true,
+        recordInputs: true,
+        recordOutputs: true,
+  },
     })
 
     return step
@@ -66,6 +80,11 @@ export const executeOpenAI = inngest.createFunction(
       model: openai("gpt-5"),
       system: 'You are a helpful assistant that helps users to generate text based on their prompts.',
       prompt: "Write a short poem about the beauty of nature.",
+      experimental_telemetry: { 
+        isEnabled: true,
+        recordInputs: true,
+        recordOutputs: true,
+  },
     })
 
     return step
