@@ -5,9 +5,9 @@ import Image from 'next/image';
 import Link from 'next/link';
 import {usePathname,useRouter} from 'next/navigation';
 import { Sidebar,SidebarContent,SidebarFooter, SidebarGroup, SidebarGroupContent,SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from './ui/sidebar';
-import { title } from 'process';
-import { ur } from 'zod/v4/locales';
 import { authClient } from '@/lib/client-auth';
+import { use } from 'react';
+import { useHasActiveSubscription } from '@/features/auth/components/subscriptions/hooks/use-subscription';
 
 const menuItems = [
     {
@@ -46,6 +46,7 @@ const menuItems = [
 export const AppSidebar = () => {
         const pathname = usePathname();
         const router = useRouter();
+        const {hasActiveSubscription,isLoading}=useHasActiveSubscription();
     return (
         <Sidebar collapsible='icon'>
             <SidebarHeader>
@@ -83,14 +84,17 @@ export const AppSidebar = () => {
                 ))}
             </SidebarContent>
             <SidebarFooter>
-                <SidebarMenuItem>
-                    <SidebarMenuButton tooltip="Upgrade to Pro" className='gap-x-4 h-10 px-4' onClick={()=>{}}>
+                <SidebarMenu>
+                    { !hasActiveSubscription && !isLoading && (               
+                 <SidebarMenuItem>
+                    <SidebarMenuButton tooltip="Upgrade to Pro" className='gap-x-4 h-10 px-4' onClick={()=>authClient.checkout({slug:"Wireflow"})}>
                         <StarIcon className='h-4 w-4'/>
                         <span>Upgrade to Pro</span>
                     </SidebarMenuButton>
-                </SidebarMenuItem>
+                </SidebarMenuItem>)}
+
                 <SidebarMenuItem>
-                    <SidebarMenuButton tooltip="Billing Portal" className='gap-x-4 h-10 px-4' onClick={()=>{}}>
+                    <SidebarMenuButton tooltip="Billing Portal" className='gap-x-4 h-10 px-4' onClick={()=>authClient.customer.portal()}>
                         <CreditCardIcon className='h-4 w-4'/>
                         <span>Billing Portal</span>
                     </SidebarMenuButton>
@@ -107,6 +111,7 @@ export const AppSidebar = () => {
                         <span>Sign out</span>
                     </SidebarMenuButton>
                 </SidebarMenuItem>
+                </SidebarMenu>
             </SidebarFooter>
         </Sidebar>
     )
