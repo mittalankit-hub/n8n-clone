@@ -159,7 +159,6 @@ interface ErrorViewProps extends StateViewProps {
 }
 
 export const EntityErrorView = ({entity="items", message}:ErrorViewProps) => {
-
     return(
     <div className="flex justify-center items-center h-full flex-1 flex-col gap-y-4">
         <AlertTriangleIcon className="size-6 animate-spin text-primary"/>

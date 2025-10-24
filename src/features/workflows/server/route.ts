@@ -3,6 +3,7 @@ import prisma from "@/lib/prisma";
 import { createTRPCRouter, premiumProcedure, protectedProcedure } from "@/trpc/init";
 import z from 'zod';
 import { PAGINATION } from '@/config/constants';
+import { TRPCError } from '@trpc/server';
 
 export const workflowRouter = createTRPCRouter({
 
@@ -55,6 +56,12 @@ export const workflowRouter = createTRPCRouter({
                 userId: ctx.auth.user.id,
             }
         });
+        if(!workflow){
+            throw new TRPCError({
+                code: 'NOT_FOUND',
+                message: 'Workflow not found'
+            })
+        }
         return workflow;
     }),
 

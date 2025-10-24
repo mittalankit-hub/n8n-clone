@@ -1,6 +1,5 @@
 import { useTRPC } from "@/trpc/client"
 import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-query"
-import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 import { useWorkflowsParams } from "./use-workflows-params"
 
@@ -41,6 +40,29 @@ export const useRemoveWorkflow = ()=>{
                 toast.success(`Workflow ${data.name} deleted`)
                 queryClient.invalidateQueries(trpc.workflows.getAll.queryOptions({}))
                 queryClient.invalidateQueries(trpc.workflows.getOne.queryOptions({id:data.id}))
+            }
+        }))
+}
+
+export const useSuspenseSingleWorkflow = (id:string)=>{
+
+    const trpc = useTRPC()
+
+    return useSuspenseQuery(trpc.workflows.getOne.queryOptions({id}))
+}
+
+export const useRenameWorkflow = ()=>{
+    const queryClient = useQueryClient()
+    const trpc = useTRPC()
+
+        return useMutation(trpc.workflows.updateName.mutationOptions({
+            onSuccess : (data)=>{
+                toast.success(`Workflow ${data.name} updated `)
+                queryClient.invalidateQueries(trpc.workflows.getAll.queryOptions({}))
+                queryClient.invalidateQueries(trpc.workflows.getOne.queryOptions({id:data.id}))
+            },
+            onError: (error)=>{
+                toast.error(`Failed to update workflow: ${error.message}`)
             }
         }))
 }
