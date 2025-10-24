@@ -1,10 +1,13 @@
 "use client"
-import { EntityContainer, EntityHeader, EntityPagination, EntitySearch } from "@/components/entity-components"
-import { useCreateWorkflow, useSuspenseWorkflows } from "../hooks/use-workflows"
+import { EntityContainer, EntityEmptyView, EntityErrorView, EntityHeader, EntityItem, EntityList, EntityLoadingView, EntityPagination, EntitySearch } from "@/components/entity-components"
+import { useCreateWorkflow, useRemoveWorkflow, useSuspenseWorkflows } from "../hooks/use-workflows"
 import { useUpgradeModal } from "@/hooks/use-upgrade-modal"
 import { useRouter } from "next/navigation"
 import { useWorkflowsParams } from "../hooks/use-workflows-params"
 import { useEntitySearch } from "@/hooks/use-entity-search"
+import type {Workflow} from "@/generated/prisma"
+import { WorkflowIcon } from "lucide-react"
+import {formatDistanceToNow} from "date-fns"
 
 
 export const WorkflowsPagination = ()=>{
@@ -23,9 +26,9 @@ export const WorkflowsPagination = ()=>{
 export const WorkflowsSearch =()=>{
 
     const [params,setParams] = useWorkflowsParams()
-    const {searchValue,oneSearchChange} = useEntitySearch({params,setParams})
+    const {searchValue,onSearchChange} = useEntitySearch({params,setParams})
     return (
-        <EntitySearch value={searchValue} onChange={oneSearchChange} placeholder="Search workflows"/>
+        <EntitySearch value={searchValue} onChange={onSearchChange} placeholder="Search workflows"/>
     )
 }
 
@@ -33,13 +36,22 @@ export const WorkflowsList =()=>{
 
     const workflows =useSuspenseWorkflows()
 
-    return (
-        <div className="flex-1 flex justify-center items-center">
-            <p>
-                {JSON.stringify(workflows.data,null,2)}
-            </p>
-        </div>
+    return(
+        <EntityList 
+        items={workflows.data.items} 
+        getKey={(workflow)=>workflow.id} 
+        renderItem={ (workflow)=><WorkflowItem data={workflow}/>} 
+        emptyView={<WorkflowsEmpty/>}/>
     )
+    // return (
+    //     <div className="flex-1 flex justify-center items-center">
+    //         {workflows.data.items.length === 0 && <WorkflowsEmpty/>}
+    //         {workflows.data.items.length > 0 &&
+    //         <p>
+    //             {JSON.stringify(workflows.data,null,2)}
+    //         </p>}
+    //     </div>
+    // )
 }
 
 export const WorkflowHeader =({disabled}:{disabled?:boolean})=>{
@@ -84,4 +96,55 @@ export const WorkflowContainer = ({children}:{ children:React.ReactNode})=>{
        
 
     )
+}
+
+export const WorkflowsLoading = ()=> {
+
+    return (
+        <EntityLoadingView entity="workflows"/>
+    )
+}
+
+export const WorkflowsError = ()=> {
+
+    return (
+        <EntityErrorView entity="workflows"/>
+    )
+}
+
+export const WorkflowsEmpty = ()=> {
+
+    return (
+        <EntityEmptyView entity="workflow"/>
+    )
+}
+
+
+export const WorkflowItem = ({data}:{data:Workflow})=>{
+
+    const removeWorkflow = useRemoveWorkflow()
+
+    const handleRemove = ()=>{removeWorkflow.mutate({id: data.id})}
+
+    return(
+        <EntityItem 
+        href={`/workflows/${data.id}`}
+        title={data.name}
+        subtitle={
+            <>
+                Updated {formatDistanceToNow(data.updatedAt,{addSuffix:true})}{" "}
+                &bull; Created{" "}{formatDistanceToNow(data.createdAt,{addSuffix:true})}
+                
+            </>
+        }
+        image={
+            <div className="size-8 flex items-center justify-center ">
+                <WorkflowIcon className="size-5 text-muted-foreground"/>
+            </div>
+        }
+        onRemove={handleRemove}
+        isRemoving={false}
+        />
+    )
+
 }

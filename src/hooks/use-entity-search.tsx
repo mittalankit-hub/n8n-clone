@@ -37,8 +37,8 @@ export function useEntitySearch<T extends {
                     page: PAGINATION.DEFAULT_PAGE,
                 })
             }
-        },debounceMs)
-        return () =>clearTimeout(timer);
+        },debounceMs);
+        return () => clearTimeout(timer);
     },[localSearch,params,setParams,debounceMs]);
 
     useEffect(()=>{
@@ -46,6 +46,6 @@ export function useEntitySearch<T extends {
     },[params.search]);
     return{
         searchValue: localSearch,
-        oneSearchChange: setLocalSearch,
+        onSearchChange: setLocalSearch,
     }
 }
