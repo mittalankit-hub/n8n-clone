@@ -30,7 +30,7 @@ export const EditorNameInput = ({workflowId}:EditorHeaderProps)=>{
     const {data} =  useSuspenseSingleWorkflow(workflowId)
     const updatedWorkflowName = useRenameWorkflow()
     const [isEditing, setIsEditing] = useState(false)
-    const [name,setName] = useState(data.name)
+    const [name,setName] = useState(data.workflow.name)
     const inputRef  = useRef<HTMLInputElement>(null)
     // useEffect(()=>{
     //     if(data.name)
@@ -47,7 +47,7 @@ export const EditorNameInput = ({workflowId}:EditorHeaderProps)=>{
     },[isEditing])
 
     const handleSave = async()=>{
-        if(name === data.name ){
+        if(name === data.workflow.name ){
             setIsEditing(false)
             return
         }
@@ -59,7 +59,7 @@ export const EditorNameInput = ({workflowId}:EditorHeaderProps)=>{
             })
         }
         catch{
-            setName(data.name) 
+            setName(data.workflow.name) 
         }finally{
              setIsEditing(false)
         }
@@ -69,7 +69,7 @@ export const EditorNameInput = ({workflowId}:EditorHeaderProps)=>{
         if(e.key === 'Enter'){
             handleSave();
         } else if(e.key==='Escape'){
-            setName(data.name);
+            setName(data.workflow.name);
             setIsEditing(false)
         }
     }
@@ -89,7 +89,7 @@ export const EditorNameInput = ({workflowId}:EditorHeaderProps)=>{
     }
     return(
         <BreadcrumbItem onClick={()=>setIsEditing(true)} className="cursor-pointer hover:text-foreground transition-colors">
-            {data.name}
+            {data.workflow.name}
         </BreadcrumbItem>
     )
 }

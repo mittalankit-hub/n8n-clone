@@ -16,8 +16,7 @@ const Page = async ({params}:PageProps) => {
     prefetchSingleWorkflow(workflowId)
   
     return (
-        <div className="flex flex-col">  
-            
+        <div className="flex flex-col h-screen">  
               <HydrateClient>
                 <ErrorBoundary fallback={<EditorError/>}>
                     <Suspense fallback={<EditorLoading/>}>

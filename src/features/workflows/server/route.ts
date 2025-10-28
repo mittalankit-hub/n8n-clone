@@ -4,6 +4,9 @@ import { createTRPCRouter, premiumProcedure, protectedProcedure } from "@/trpc/i
 import z from 'zod';
 import { PAGINATION } from '@/config/constants';
 import { TRPCError } from '@trpc/server';
+import { NodeType } from '@/generated/prisma';
+import type {Node,Edge} from"@xyflow/react"
+import { no } from 'zod/v4/locales';
 
 export const workflowRouter = createTRPCRouter({
 
@@ -13,6 +16,15 @@ export const workflowRouter = createTRPCRouter({
             data: {
                 name: generateSlug(3),
                 userId: ctx.auth.user.id,
+                nodes: {
+                    create: 
+                        {
+                            type: NodeType.INITIAL,
+                            position: { x: 0, y: 0 },
+                            name: NodeType.INITIAL,
+                        }
+                    
+                }
             }
         });
         return workflow;
@@ -54,6 +66,10 @@ export const workflowRouter = createTRPCRouter({
             where: {
                 id: input.id,
                 userId: ctx.auth.user.id,
+            },
+            include:{
+                nodes:true,
+                connection:true
             }
         });
         if(!workflow){
@@ -62,7 +78,25 @@ export const workflowRouter = createTRPCRouter({
                 message: 'Workflow not found'
             })
         }
-        return workflow;
+        const nodes:Node[] = workflow.nodes.map((node) => ({
+            id: node.id,
+            type: node.type ?? 'default',
+            position: node.position as {x:number , y:number},
+            data: (node.data as Record<string,unknown>) || {}
+        }))
+
+        const edges:Edge[] = workflow.connection.map((connection)=>({
+            id: connection.id,
+            source: connection.fromNodeId,
+            target: connection.toNodeId,
+            sourceHandle: connection.fromOutput,
+            targetHandle: connection.toInput
+        }))
+        return {
+            workflow: workflow,
+            nodes,
+            edges
+        };
     }),
 
     getAll: protectedProcedure
